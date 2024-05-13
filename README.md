@@ -83,18 +83,6 @@ public class NumberAscOrderTest {
         assertThrows(StackFullException.class, () -> stack.push(2));
     }
 
-    // Teste para verificar se a ordenação resulta na lista esperada.
-    @Test
-    public void testDoubleNums() {
-        // Configuração do mock para retornar uma lista desordenada.
-        when(mockStack.toList()).thenReturn(Arrays.asList(5, 3, 4, 1, 2, 6));
-        List<Integer> sortedList = (List<Integer>) numberAscOrder.sort(); // Executa o método sort.
-        List<Integer> expectedList = Arrays.asList(1, 2, 3, 4, 5, 6); // Lista esperada após ordenação.
-        // Verifica se a lista ordenada é igual à lista esperada.
-        assertIterableEquals(expectedList, sortedList);
-    }
-}
-
 ~~~~
 
 ![image](https://github.com/WallaceHS20/AULA28/assets/101594950/0a9bc01c-b2ca-42e0-b17f-398e1f79e9e0)
