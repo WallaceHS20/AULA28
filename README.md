@@ -1,52 +1,23 @@
-# CLASSE CustomStack
+# CLASSE NumberAscOrder
 ~~~~java
 package br.edu.fatec.sjc;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
+import java.util.Collections;
 
-public class CustomStack<T extends  Number> {
-    private final Integer limit;
-    private int index = 0;
-    private List<T> elements;
-    private CalculableStrategy<T> calculableStrategy;
-    Integer a;
-    public CustomStack(int pLimit, CalculableStrategy<T> pCalculableStratey) {
-            this.limit = pLimit;
-            this.elements = new ArrayList<>();
-            this.calculableStrategy = pCalculableStratey;
+
+public class NumberAscOrder {
+    private CustomStack<? extends Comparable> stack;
+
+
+    public NumberAscOrder(CustomStack<? extends Comparable> stack) {
+        this.stack = stack;
     }
 
-    public void push(T element) throws StackFullException {
-        if(this.size() == this.limit) {
-            throw new StackFullException();
-        }
-        this.elements.add(calculableStrategy.calculateValue(element));
-        ++index;
-    }
-
-    public T pop() throws StackEmptyException {
-        if(this.isEmpty()) {
-            throw new StackEmptyException();
-        }
-        return this.elements.remove(--index);
-    }
-
-    public List<T> toList() {
-        return new ArrayList<>(this.elements);
-    }
-
-    public boolean isEmpty() {
-        return this.elements.isEmpty();
-    }
-
-    public T top() {
-        return this.elements.get((index-1));
-    }
-
-    public int size() {
-        return this.elements.size();
+    public List<? extends Comparable> sort() {
+        List<? extends Comparable> list = stack.toList(); 
+        Collections.sort(list);
+        return list;
     }
 }
 ~~~~
@@ -56,120 +27,78 @@ public class CustomStack<T extends  Number> {
 ~~~~java
 package br.edu.fatec.sjc;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
-@ExtendWith(MockitoExtension.class)
-public class StackTest {
+public class NumberAscOrderTest {
 
-    private CustomStack<Double> stack;
-    @Mock
-    CalculableStrategy<Double> calculableStrategy;
+    private CustomStack<Integer> mockStack; // Mock de CustomStack para simular comportamentos.
+    private NumberAscOrder numberAscOrder; // Instância de NumberAscOrder que será testada.
+    private Random random = new Random();
 
-    @BeforeEach
-    public void setup() {
-        stack = new CustomStack<>(5, calculableStrategy);
+    // Método de configuração que é executado antes de cada teste.
+    @Before
+    public void setUp() {
+        mockStack = mock(CustomStack.class); // Criação do mock para CustomStack.
+        numberAscOrder = new NumberAscOrder(mockStack); // Inicializa NumberAscOrder com o mock.
     }
 
+    // VERIFICAR SE LISTA PREENCHIDA CORRETAMENTE COM O SIZE
     @Test
-    public void validatePushOneElementInStack() {
-        Double elementValue = 5.0;
-        Double value = 0.0;
-        Mockito.when(
-                calculableStrategy.calculateValue(Mockito.anyDouble())
-        ).thenReturn(5.0);
-        try {
-            stack.push(elementValue);
-            assertFalse(stack.isEmpty());
-            assertEquals(elementValue, stack.top());
-            assertEquals(1, stack.size());
-            value = stack.pop();
-        } catch(StackEmptyException | StackFullException ex) {
-            fail();
+    public void testSortWithFilledStack() {
+        List<Integer> randomNumbers = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            randomNumbers.add(random.nextInt(100));  // Gera um número aleatório entre 0 e 99.
         }
-        assertEquals(elementValue, value);
-        assertEquals(0.0, stack.size());
-        Mockito.verify(calculableStrategy, Mockito.times(1))
-                .calculateValue(Mockito.anyDouble());
-    }
 
-    @Test
-    public void validatePushOneElementWithNullValueInStack() {
-        Mockito.when(calculableStrategy.calculateValue(Mockito.isNull()))
-                .thenThrow((NullPointerException.class));
+        // Configura o mock para retornar a lista de números aleatórios.
+        when(mockStack.toList()).thenReturn(randomNumbers);
 
-        Assertions.assertThrows(NullPointerException.class, () -> stack.push(null));
+        System.out.println("Antes da ordenação: " + mockStack.toList());
 
-        assertTrue(stack.isEmpty());
-        assertEquals(0, stack.size());
+        List<Integer> sortedList = (List<Integer>) numberAscOrder.sort();
 
-        Mockito.verify(calculableStrategy, Mockito.times(1))
-                .calculateValue(Mockito.isNull());
-    }
+        System.out.println("Após a ordenação: " + sortedList);
 
-    @Test
-    public void validatePushTwoElementAndRemoveOneOfThenInStack() {
-        Double secondElementValue = 10.0;
-        Double value = 0.0;
-        Mockito.when(
-                calculableStrategy.calculateValue(Mockito.anyDouble())
-        ).thenReturn(10.0);
-        try {
-            stack.push(5.0);
-            stack.push(secondElementValue);
-            assertFalse(stack.isEmpty());
-            assertEquals(secondElementValue, stack.top());
-            assertEquals(2, stack.size());
-            value = stack.pop();
-        } catch(StackEmptyException | StackFullException ex) {
-            fail();
+        // Verifica se a lista está ordenada corretamente.
+        for (int i = 1; i < sortedList.size(); i++) {
+            assertTrue(sortedList.get(i - 1) <= sortedList.get(i));
         }
-        assertEquals(secondElementValue, value);
-        assertEquals(1, stack.size());
     }
 
+
+    // TESTE PILHA VAZIA
     @Test
-    public void validatePushOneElementAndRemoveTwoElementsInStack() {
-        Double secondElementValue = 10.0;
-        Mockito.when(
-                calculableStrategy.calculateValue(Mockito.anyDouble())
-        ).thenReturn(10.0);
-        try {
-            stack.push(secondElementValue);
-            stack.pop();
-        } catch(StackEmptyException | StackFullException ex) {
-            fail();
-        }
-        assertTrue(stack.isEmpty());
-        assertEquals(0, stack.size());
-        assertThrows(StackEmptyException.class, () -> {
-            stack.pop();
-        });
+    public void testSortWithEmptyStack() {
+        // Configuração MOCK LISTA VAZIA
+        when(mockStack.toList()).thenReturn(Arrays.asList());
+        List<Integer> sortedList = (List<Integer>) numberAscOrder.sort(); // EXECUTA O SORT
+        // LISTA VAZIA ?
+        assertTrue(sortedList.isEmpty());
     }
 
+    // TESTE DE VERIFICAÇÃO SE PILHA ESTÁ CHEIA
     @Test
-    public void validatePushTwoElementForStackWithLimitSizeEqualOne() {
-        this.stack = new CustomStack<>(1, calculableStrategy);
-        Mockito.when(
-                calculableStrategy.calculateValue(Mockito.anyDouble())
-        ).thenReturn(20.0);
-        try {
-            stack.push(5.0);
-        } catch(StackFullException ex) {
-            fail();
-        }
-        assertThrows(StackFullException.class, () -> {
-            stack.push(10.0);
-        });
+    public void testPushToFullStack() throws StackFullException {
+        CalculableStrategy<Integer> strategy = element -> element; // Estratégia de cálculo simples que retorna o elemento.
+        CustomStack<Integer> stack = new CustomStack<>(1, strategy); // PILHA COM 1 ELEMENTO
+
+        stack.push(1);
+        // TENTATIVA DE ADICIONAR COM PILHA CHEIA
+        assertThrows(StackFullException.class, () -> stack.push(2));
     }
 }
+
 
 ~~~~
 
