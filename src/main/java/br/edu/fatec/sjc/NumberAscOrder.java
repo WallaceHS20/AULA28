@@ -1,20 +1,23 @@
 package br.edu.fatec.sjc;
-
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Collections;
 
-
-public class NumberAscOrder {
-    private CustomStack<? extends Comparable> stack;
-
-
-    public NumberAscOrder(CustomStack<? extends Comparable> stack) {
-        this.stack = stack;
+public class NumberAscOrder<T extends Number> {
+    private CustomStack<T> pilhaRecebida;
+    private List<T> ordenar = new ArrayList<T>();
+    public NumberAscOrder(CustomStack<T> pilha) {
+        pilhaRecebida = pilha;
     }
-
-    public List<? extends Comparable> sort() {
-        List<? extends Comparable> list = stack.toList(); // Presumindo que CustomStack tenha um método toList()
-        Collections.sort(list);
-        return list;
+    public List<T> sort() throws StackEmptyException {
+        if (pilhaRecebida.size() == 0) {
+            return ordenar;
+        }
+        Integer numeroDeElementos = pilhaRecebida.size();
+        for (Integer i = 0; i < numeroDeElementos; i++) {
+            T valor = pilhaRecebida.pop();
+            ordenar.add(valor);
+        }
+        ordenar.sort(null);
+        return ordenar;
     }
 }
