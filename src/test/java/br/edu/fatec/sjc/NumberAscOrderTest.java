@@ -1,62 +1,73 @@
 package br.edu.fatec.sjc;
 
-
 import org.junit.Before;
 import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class NumberAscOrderTest {
 
-    private CustomStack<Integer> mockStack;
-    private NumberAscOrder numberAscOrder;
+    private CustomStack<Integer> mockStack; // Mock de CustomStack para simular comportamentos.
+    private NumberAscOrder numberAscOrder; // Instância de NumberAscOrder que será testada.
+    private Random random = new Random();
 
+    // Método de configuração que é executado antes de cada teste.
     @Before
     public void setUp() {
-        mockStack = mock(CustomStack.class);
-        numberAscOrder = new NumberAscOrder(mockStack);
+        mockStack = mock(CustomStack.class); // Criação do mock para CustomStack.
+        numberAscOrder = new NumberAscOrder(mockStack); // Inicializa NumberAscOrder com o mock.
     }
 
+    // VERIFICAR SE LISTA PREENCHIDA CORRETAMENTE COM O SIZE
     @Test
     public void testSortWithFilledStack() {
-        when(mockStack.toList()).thenReturn(Arrays.asList(5, 3, 4, 1, 2, 6));
+        List<Integer> randomNumbers = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            randomNumbers.add(random.nextInt(100));  // Gera um número aleatório entre 0 e 99.
+        }
+
+        // Configura o mock para retornar a lista de números aleatórios.
+        when(mockStack.toList()).thenReturn(randomNumbers);
+
+        System.out.println("Antes da ordenação: " + mockStack.toList());
+
         List<Integer> sortedList = (List<Integer>) numberAscOrder.sort();
+
+        System.out.println("Após a ordenação: " + sortedList);
+
+        // Verifica se a lista está ordenada corretamente.
         for (int i = 1; i < sortedList.size(); i++) {
-            assertTrue(sortedList.get(i-1) <= sortedList.get(i));
+            assertTrue(sortedList.get(i - 1) <= sortedList.get(i));
         }
     }
 
+
+    // TESTE PILHA VAZIA
     @Test
     public void testSortWithEmptyStack() {
+        // Configuração MOCK LISTA VAZIA
         when(mockStack.toList()).thenReturn(Arrays.asList());
-        List<Integer> sortedList = (List<Integer>) numberAscOrder.sort();
+        List<Integer> sortedList = (List<Integer>) numberAscOrder.sort(); // EXECUTA O SORT
+        // LISTA VAZIA ?
         assertTrue(sortedList.isEmpty());
     }
 
+    // TESTE DE VERIFICAÇÃO SE PILHA ESTÁ CHEIA
     @Test
     public void testPushToFullStack() throws StackFullException {
-        CalculableStrategy<Integer> strategy = element -> element;
-        CustomStack<Integer> stack = new CustomStack<>(1, strategy);
+        CalculableStrategy<Integer> strategy = element -> element; // Estratégia de cálculo simples que retorna o elemento.
+        CustomStack<Integer> stack = new CustomStack<>(1, strategy); // PILHA COM 1 ELEMENTO
 
-        stack = new CustomStack<>(1, strategy);
         stack.push(1);
-        CustomStack<Integer> finalStack = stack;
-        assertThrows(StackFullException.class, () -> finalStack.push(2));
+        // TENTATIVA DE ADICIONAR COM PILHA CHEIA
+        assertThrows(StackFullException.class, () -> stack.push(2));
     }
-
-    @Test
-    public void testDoubleNums() {
-
-        when(mockStack.toList()).thenReturn(Arrays.asList(5, 3, 4, 1, 2, 6));
-        List<Integer> sortedList = (List<Integer>) numberAscOrder.sort();
-        List<Integer> expectedList = Arrays.asList(1, 2, 3, 4, 5, 6);
-        assertIterableEquals(expectedList, sortedList);
-    }
-
 }

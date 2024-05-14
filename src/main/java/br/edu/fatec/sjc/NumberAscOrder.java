@@ -7,6 +7,7 @@ import java.util.Collections;
 public class NumberAscOrder {
     private CustomStack<? extends Comparable> stack;
 
+
     public NumberAscOrder(CustomStack<? extends Comparable> stack) {
         this.stack = stack;
     }
