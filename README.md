@@ -34,14 +34,17 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
-// Classe de testes para NumberAscOrder.
 public class NumberAscOrderTest {
 
     private CustomStack<Integer> mockStack; // Mock de CustomStack para simular comportamentos.
     private NumberAscOrder numberAscOrder; // Instância de NumberAscOrder que será testada.
+    private Random random = new Random();
 
     // Método de configuração que é executado antes de cada teste.
     @Before
@@ -50,38 +53,52 @@ public class NumberAscOrderTest {
         numberAscOrder = new NumberAscOrder(mockStack); // Inicializa NumberAscOrder com o mock.
     }
 
-    // Teste para verificar a ordenação de uma pilha preenchida.
+    // VERIFICAR SE LISTA PREENCHIDA CORRETAMENTE COM O SIZE
     @Test
     public void testSortWithFilledStack() {
-        // Configuração do mock para retornar uma lista específica quando toList é chamado.
-        when(mockStack.toList()).thenReturn(Arrays.asList(5, 3, 4, 1, 2, 6));
-        List<Integer> sortedList = (List<Integer>) numberAscOrder.sort(); // Executa o método sort.
-        // Verifica se cada elemento na lista ordenada é menor ou igual ao próximo.
+        List<Integer> randomNumbers = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            randomNumbers.add(random.nextInt(100));  // Gera um número aleatório entre 0 e 99.
+        }
+
+        // Configura o mock para retornar a lista de números aleatórios.
+        when(mockStack.toList()).thenReturn(randomNumbers);
+
+        System.out.println("Antes da ordenação: " + mockStack.toList());
+
+        List<Integer> sortedList = (List<Integer>) numberAscOrder.sort();
+
+        System.out.println("Após a ordenação: " + sortedList);
+
+        // Verifica se a lista está ordenada corretamente.
         for (int i = 1; i < sortedList.size(); i++) {
-            assertTrue(sortedList.get(i-1) <= sortedList.get(i));
+            assertTrue(sortedList.get(i - 1) <= sortedList.get(i));
         }
     }
 
-    // Teste para verificar a ordenação de uma pilha vazia.
+
+    // TESTE PILHA VAZIA
     @Test
     public void testSortWithEmptyStack() {
-        // Configuração do mock para retornar uma lista vazia.
+        // Configuração MOCK LISTA VAZIA
         when(mockStack.toList()).thenReturn(Arrays.asList());
-        List<Integer> sortedList = (List<Integer>) numberAscOrder.sort(); // Executa o método sort.
-        // Verifica se a lista resultante está vazia.
+        List<Integer> sortedList = (List<Integer>) numberAscOrder.sort(); // EXECUTA O SORT
+        // LISTA VAZIA ?
         assertTrue(sortedList.isEmpty());
     }
 
-    // Teste para verificar a exceção quando um elemento é adicionado a uma pilha cheia.
+    // TESTE DE VERIFICAÇÃO SE PILHA ESTÁ CHEIA
     @Test
     public void testPushToFullStack() throws StackFullException {
         CalculableStrategy<Integer> strategy = element -> element; // Estratégia de cálculo simples que retorna o elemento.
-        CustomStack<Integer> stack = new CustomStack<>(1, strategy); // Cria uma pilha com limite de um elemento.
+        CustomStack<Integer> stack = new CustomStack<>(1, strategy); // PILHA COM 1 ELEMENTO
 
-        stack.push(1); // Adiciona um elemento à pilha.
-        // Verifica se uma exceção é lançada ao tentar adicionar outro elemento à pilha cheia.
+        stack.push(1);
+        // TENTATIVA DE ADICIONAR COM PILHA CHEIA
         assertThrows(StackFullException.class, () -> stack.push(2));
     }
+}
+
 
 ~~~~
 
